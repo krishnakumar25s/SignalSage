@@ -21,7 +21,7 @@ export interface Message {
 const welcomeMessage: Message = {
     id: 'welcome',
     role: 'assistant',
-    content: 'Hi! I am AI Nanban, your friendly signal sage. Ask me about mobile plans, offers, or any tech questions you have!',
+    content: 'Hi! I\'m AI Nanban. Ask me anything!',
 };
 
 export function AIChat() {
@@ -93,7 +93,7 @@ export function AIChat() {
                 )}
                 <div
                   className={cn(
-                    'max-w-xs md:max-w-md lg:max-w-lg px-4 py-3 rounded-xl whitespace-pre-wrap',
+                    'max-w-xs md:max-w-md lg:max-w-lg px-4 py-3 rounded-2xl whitespace-pre-wrap',
                     message.role === 'user'
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted text-muted-foreground'
@@ -117,7 +117,7 @@ export function AIChat() {
                         <BotIcon className='h-5 w-5' />
                     </AvatarFallback>
                 </Avatar>
-                <div className="max-w-lg px-4 py-3 rounded-xl bg-muted text-muted-foreground">
+                <div className="max-w-lg px-4 py-3 rounded-2xl bg-muted text-muted-foreground">
                   <div className="flex items-center gap-2">
                     <span className="h-2 w-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></span>
                     <span className="h-2 w-2 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]"></span>
