@@ -12,6 +12,51 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowRight, Bot, Wifi } from 'lucide-react';
 import { useLanguage } from '@/context/language-context';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { JioIcon, AirtelIcon, ViIcon, BsnlIcon } from '@/components/app/icons';
+
+
+function PlansSection() {
+  const plans = [
+    { name: 'Jio', price: '299', data: '2GB/Day', validity: '28 Days', logo: JioIcon, href: '/operator/jio' },
+    { name: 'Airtel', price: '359', data: '2.5GB/Day', validity: '1 Month', logo: AirtelIcon, href: '/operator/airtel' },
+    { name: 'Vi', price: '319', data: '2GB/Day', validity: '1 Month', logo: ViIcon, href: '/operator/vi' },
+    { name: 'BSNL', price: '239', data: '1.5GB/Day', validity: '45 Days', logo: BsnlIcon, href: '/operator/bsnl' },
+  ];
+
+  return (
+    <section className="py-16 md:py-24 bg-slate-100 dark:bg-slate-800/50">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold font-headline">Popular Subscription Plans</h2>
+          <p className="mt-4 max-w-2xl mx-auto text-lg text-slate-600 dark:text-slate-300">
+            Find the perfect plan that fits your needs from India's leading network providers.
+          </p>
+        </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {plans.map((plan) => (
+            <Card key={plan.name} className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <CardHeader className="items-center text-center">
+                <plan.logo className="h-16 w-16 mb-4" />
+                <CardTitle className="text-2xl font-headline">{plan.name}</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <p className="text-3xl font-bold text-primary">₹{plan.price}</p>
+                <div className="mt-4 space-y-1 text-muted-foreground">
+                    <p>{plan.data}</p>
+                    <p>{plan.validity} Validity</p>
+                </div>
+                <Button asChild className="mt-6 w-full font-bold">
+                  <Link href={plan.href}>View Details</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
 
 function IntroSection() {
   const { t } = useLanguage();
@@ -70,6 +115,7 @@ function IntroSection() {
             </div>
           </div>
         </section>
+        <PlansSection />
       </main>
     </>
   );
