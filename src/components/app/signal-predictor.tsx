@@ -82,13 +82,13 @@ export function SignalPredictor() {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        // Initial prediction and sort
-        const currentPredictions = initialPredictions.map(generateRandomValues);
+        // Initial prediction and sort to determine the best operator
+        const initialGeneratedPredictions = initialPredictions.map(generateRandomValues);
         
-        const best = currentPredictions.reduce((max, p) => p.rating > max.rating ? p : max, currentPredictions[0]);
+        const best = initialGeneratedPredictions.reduce((max, p) => p.rating > max.rating ? p : max, initialGeneratedPredictions[0]);
         setBestPrediction(best);
 
-        const otherPredictions = currentPredictions
+        const otherPredictions = initialGeneratedPredictions
             .filter(p => p.operator !== best.operator)
             .sort((a, b) => a.operator.localeCompare(b.operator));
         
@@ -99,16 +99,12 @@ export function SignalPredictor() {
           description: t.signalStrengthPredicted,
         });
 
-        // Start interval to update predictions without re-sorting
+        // Start interval to update predictions values only
         intervalRef.current = setInterval(() => {
-            const updatedPredictions = initialPredictions.map(generateRandomValues);
-            const updatedBest = updatedPredictions.reduce((max, p) => p.rating > max.rating ? p : max, updatedPredictions[0]);
-            setBestPrediction(updatedBest);
-
-            const updatedOthers = updatedPredictions
-                .filter(p => p.operator !== updatedBest.operator)
-                .sort((a, b) => a.operator.localeCompare(b.operator));
-            setPredictions(updatedOthers);
+            setBestPrediction(prevBest => prevBest ? generateRandomValues(prevBest) : null);
+            setPredictions(prevOthers => 
+                prevOthers ? prevOthers.map(p => generateRandomValues(p)) : null
+            );
         }, 2000);
       },
       (err) => {
