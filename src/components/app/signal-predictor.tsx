@@ -209,7 +209,7 @@ export function SignalPredictor() {
                         <Button asChild variant="outline" className="w-full justify-start">
                              <Link href={`/operator/${pred.operator.toLowerCase()}`}>
                                 <pred.logo className="mr-2" />
-                                View Details
+                                {pred.operator}
                             </Link>
                         </Button>
                         <Button asChild className="w-full font-bold">
