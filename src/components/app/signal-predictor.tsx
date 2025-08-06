@@ -4,13 +4,12 @@
 import { useEffect, useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, MapPin, XCircle, ArrowRight, ArrowDown, ArrowUp } from 'lucide-react';
+import { Loader2, MapPin, XCircle, ArrowRight, ArrowDown, ArrowUp, Star, Award } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { JioIcon, AirtelIcon, ViIcon, BsnlIcon } from '@/components/app/icons';
 import { useLanguage } from '@/context/language-context';
-import { cn } from '@/lib/utils';
 import { StarRating } from './star-rating';
 
 
@@ -18,23 +17,22 @@ interface Prediction {
   operator: string;
   logo: React.FC<React.SVGProps<SVGSVGElement>>;
   rating: number;
-  frequency: string;
   downloadSpeed: number; // in Mbps
   uploadSpeed: number; // in Mbps
-  applyUrl: string;
 }
 
 const initialPredictions: Omit<Prediction, 'rating' | 'downloadSpeed' | 'uploadSpeed'>[] = [
-    { operator: 'Airtel', logo: AirtelIcon, frequency: '900 MHz (4G)', applyUrl: 'https://www.airtel.in' },
-    { operator: 'BSNL', logo: BsnlIcon, frequency: '1800 MHz (4G)', applyUrl: 'https://www.bsnl.co.in' },
-    { operator: 'Jio', logo: JioIcon, frequency: '700 MHz (5G)', applyUrl: 'https://www.jio.com' },
-    { operator: 'Vi', logo: ViIcon, frequency: '2100 MHz (4G)', applyUrl: 'https://www.myvi.in' },
+    { operator: 'Airtel', logo: AirtelIcon },
+    { operator: 'BSNL', logo: BsnlIcon },
+    { operator: 'Jio', logo: JioIcon },
+    { operator: 'Vi', logo: ViIcon },
 ];
 
 export function SignalPredictor() {
   const [isPredicting, setIsPredicting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [predictions, setPredictions] = useState<Prediction[] | null>(null);
+  const [bestPrediction, setBestPrediction] = useState<Prediction | null>(null);
   const { toast } = useToast();
   const { t } = useLanguage();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -68,6 +66,7 @@ export function SignalPredictor() {
     setIsPredicting(true);
     setError(null);
     setPredictions(null);
+    setBestPrediction(null);
 
     if (!navigator.geolocation) {
       const errorMsg = t.geolocationNotSupported;
@@ -84,9 +83,16 @@ export function SignalPredictor() {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         // Initial prediction and sort
-        const initialAlphabeticalPredictions = initialPredictions
-          .map(generateRandomValues)
-        setPredictions(initialAlphabeticalPredictions);
+        const currentPredictions = initialPredictions.map(generateRandomValues);
+        
+        const best = currentPredictions.reduce((max, p) => p.rating > max.rating ? p : max, currentPredictions[0]);
+        setBestPrediction(best);
+
+        const otherPredictions = currentPredictions
+            .filter(p => p.operator !== best.operator)
+            .sort((a, b) => a.operator.localeCompare(b.operator));
+        
+        setPredictions(otherPredictions);
 
         toast({
           title: t.Success,
@@ -95,16 +101,14 @@ export function SignalPredictor() {
 
         // Start interval to update predictions without re-sorting
         intervalRef.current = setInterval(() => {
-          setPredictions(prevPredictions => {
-            if (!prevPredictions) return null;
-            // Update values but keep the same order
-            return prevPredictions.map(p => ({
-              ...p,
-              rating: Math.floor(Math.random() * 5) + 1,
-              downloadSpeed: Math.floor(Math.random() * (150 - 10 + 1)) + 10,
-              uploadSpeed: Math.floor(Math.random() * (50 - 5 + 1)) + 5,
-            }));
-          });
+            const updatedPredictions = initialPredictions.map(generateRandomValues);
+            const updatedBest = updatedPredictions.reduce((max, p) => p.rating > max.rating ? p : max, updatedPredictions[0]);
+            setBestPrediction(updatedBest);
+
+            const updatedOthers = updatedPredictions
+                .filter(p => p.operator !== updatedBest.operator)
+                .sort((a, b) => a.operator.localeCompare(b.operator));
+            setPredictions(updatedOthers);
         }, 2000);
       },
       (err) => {
@@ -163,37 +167,77 @@ export function SignalPredictor() {
             </Alert>
         )}
 
-        {predictions && (
+        {(bestPrediction || (predictions && predictions.length > 0)) && (
           <div className="space-y-4 pt-4">
              <h3 className="font-semibold text-lg text-center text-slate-700 mb-4">{t.predictionResults}</h3>
-              <div className="flex flex-col gap-3">
-                {predictions.map((pred, index) => (
-                    <Link key={pred.operator} href={`/operator/${pred.operator.toLowerCase()}`} className="block">
-                        <Card className="hover:shadow-md hover:border-accent transition-all">
-                           <CardContent className="p-4 flex items-center gap-4">
-                                <pred.logo className="h-10 w-10" />
-                                <div className="flex-1">
-                                    <div className='flex justify-between items-center'>
-                                        <p className="font-bold text-slate-800">{pred.operator}</p>
-                                        <StarRating rating={pred.rating} />
-                                    </div>
-                                    <div className="flex items-center gap-4 text-sm text-slate-600 mt-1">
-                                        <div className="flex items-center gap-1">
-                                            <ArrowDown className="h-4 w-4 text-green-500" />
-                                            <span>{pred.downloadSpeed} Mbps</span>
+            
+            {bestPrediction && (
+                 <Card className="border-primary border-2 bg-primary/5">
+                    <CardHeader className="p-4">
+                        <CardTitle className="flex items-center gap-2 text-lg text-primary">
+                            <Award />
+                            Best Choice
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 pt-0">
+                         <Link href={`/operator/${bestPrediction.operator.toLowerCase()}`} className="block">
+                            <Card className="hover:shadow-md hover:border-accent transition-all bg-white">
+                               <CardContent className="p-4 flex items-center gap-4">
+                                    <bestPrediction.logo className="h-10 w-10" />
+                                    <div className="flex-1">
+                                        <div className='flex justify-between items-center'>
+                                            <p className="font-bold text-slate-800">{bestPrediction.operator}</p>
+                                            <StarRating rating={bestPrediction.rating} />
                                         </div>
-                                        <div className="flex items-center gap-1">
-                                            <ArrowUp className="h-4 w-4 text-orange-500" />
-                                            <span>{pred.uploadSpeed} Mbps</span>
+                                        <div className="flex items-center gap-4 text-sm text-slate-600 mt-1">
+                                            <div className="flex items-center gap-1">
+                                                <ArrowDown className="h-4 w-4 text-green-500" />
+                                                <span>{bestPrediction.downloadSpeed} Mbps</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <ArrowUp className="h-4 w-4 text-orange-500" />
+                                                <span>{bestPrediction.uploadSpeed} Mbps</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <ArrowRight className="text-slate-400" />
-                           </CardContent>
-                        </Card>
-                    </Link>
-                ))}
-              </div>
+                                    <ArrowRight className="text-slate-400" />
+                               </CardContent>
+                            </Card>
+                        </Link>
+                    </CardContent>
+                </Card>
+            )}
+
+            {predictions && predictions.length > 0 && (
+                 <div className="flex flex-col gap-3 pt-4">
+                    {predictions.map((pred) => (
+                        <Link key={pred.operator} href={`/operator/${pred.operator.toLowerCase()}`} className="block">
+                            <Card className="hover:shadow-md hover:border-accent transition-all">
+                               <CardContent className="p-4 flex items-center gap-4">
+                                    <pred.logo className="h-10 w-10" />
+                                    <div className="flex-1">
+                                        <div className='flex justify-between items-center'>
+                                            <p className="font-bold text-slate-800">{pred.operator}</p>
+                                            <StarRating rating={pred.rating} />
+                                        </div>
+                                        <div className="flex items-center gap-4 text-sm text-slate-600 mt-1">
+                                            <div className="flex items-center gap-1">
+                                                <ArrowDown className="h-4 w-4 text-green-500" />
+                                                <span>{pred.downloadSpeed} Mbps</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <ArrowUp className="h-4 w-4 text-orange-500" />
+                                                <span>{pred.uploadSpeed} Mbps</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <ArrowRight className="text-slate-400" />
+                               </CardContent>
+                            </Card>
+                        </Link>
+                    ))}
+                  </div>
+            )}
           </div>
         )}
       </CardContent>
