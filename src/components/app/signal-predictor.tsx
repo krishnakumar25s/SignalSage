@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowDown, ArrowUp, Loader2, MapPin, Wifi } from 'lucide-react';
@@ -20,11 +20,11 @@ interface Prediction {
   uploadSpeed: number; // in Mbps
 }
 
-const mockPredictions: Prediction[] = [
-    { operator: 'Jio', logo: 'https://placehold.co/40x40.png', dataAiHint: 'telecom logo', rating: 5, frequency: '700 MHz (5G)', downloadSpeed: 150, uploadSpeed: 50 },
-    { operator: 'Airtel', logo: 'https://placehold.co/40x40.png', dataAiHint: 'telecom logo', rating: 4, frequency: '900 MHz (4G)', downloadSpeed: 80, uploadSpeed: 25 },
-    { operator: 'Vi', logo: 'https://placehold.co/40x40.png', dataAiHint: 'telecom logo', rating: 3, frequency: '2100 MHz (4G)', downloadSpeed: 45, uploadSpeed: 15 },
-    { operator: 'BSNL', logo: 'https://placehold.co/40x40.png', dataAiHint: 'telecom logo', rating: 2, frequency: '1800 MHz (4G)', downloadSpeed: 20, uploadSpeed: 8 },
+const initialPredictions: Prediction[] = [
+    { operator: 'Jio', logo: 'https://placehold.co/40x40.png', dataAiHint: 'telecom logo', rating: 0, frequency: '700 MHz (5G)', downloadSpeed: 0, uploadSpeed: 0 },
+    { operator: 'Airtel', logo: 'https://placehold.co/40x40.png', dataAiHint: 'telecom logo', rating: 0, frequency: '900 MHz (4G)', downloadSpeed: 0, uploadSpeed: 0 },
+    { operator: 'Vi', logo: 'https://placehold.co/40x40.png', dataAiHint: 'telecom logo', rating: 0, frequency: '2100 MHz (4G)', downloadSpeed: 0, uploadSpeed: 0 },
+    { operator: 'BSNL', logo: 'https://placehold.co/40x40.png', dataAiHint: 'telecom logo', rating: 0, frequency: '1800 MHz (4G)', downloadSpeed: 0, uploadSpeed: 0 },
 ];
 
 export function SignalPredictor() {
@@ -53,13 +53,13 @@ export function SignalPredictor() {
       (position) => {
         // Simulate API call
         setTimeout(() => {
-          setPredictions(mockPredictions.map(p => ({
+          const mockPredictions = initialPredictions.map(p => ({
               ...p, 
               rating: Math.floor(Math.random() * 5) + 1,
               downloadSpeed: Math.floor(Math.random() * (150 - 10 + 1)) + 10,
               uploadSpeed: Math.floor(Math.random() * (50 - 5 + 1)) + 5,
-            })).sort((a, b) => b.rating - a.rating)
-          );
+            })).sort((a, b) => b.rating - a.rating);
+          setPredictions(mockPredictions);
           setIsLoading(false);
           toast({
             title: "Success!",
