@@ -11,6 +11,7 @@ import { Send, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getAIResponse } from '@/app/actions';
 import useLocalStorage from '@/hooks/use-local-storage';
+import { useLanguage } from '@/context/language-context';
 
 export interface Message {
   id: string;
@@ -18,13 +19,13 @@ export interface Message {
   content: string;
 }
 
-const welcomeMessage: Message = {
-    id: 'welcome',
-    role: 'assistant',
-    content: 'Hi! I\'m AI Nanban. Ask me anything!',
-};
-
 export function AIChat() {
+    const { t } = useLanguage();
+    const welcomeMessage: Message = {
+        id: 'welcome',
+        role: 'assistant',
+        content: t.welcomeMessage,
+    };
     const [messages, setMessages] = useLocalStorage<Message[]>('chatHistory', [welcomeMessage]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -43,6 +44,20 @@ export function AIChat() {
         scrollToBottom();
     }, [messages]);
 
+    useEffect(() => {
+        // When language changes, update welcome message if it's the only message
+        if (messages.length <= 1) {
+            setMessages([
+                {
+                    id: 'welcome',
+                    role: 'assistant',
+                    content: t.welcomeMessage,
+                }
+            ]);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [t.welcomeMessage]);
+
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -58,7 +73,7 @@ export function AIChat() {
       const assistantMessage: Message = { id: (Date.now() + 1).toString(), role: 'assistant', content: aiResponse };
       setMessages(prevMessages => [...prevMessages, assistantMessage]);
     } catch (error) {
-      const errorMessage: Message = { id: (Date.now() + 1).toString(), role: 'assistant', content: "Sorry, something went wrong. Please try again." };
+      const errorMessage: Message = { id: (Date.now() + 1).toString(), role: 'assistant', content: t.aiError };
       setMessages(prevMessages => [...prevMessages, errorMessage]);
     } finally {
       setIsLoading(false);
@@ -70,7 +85,7 @@ export function AIChat() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 font-headline text-2xl">
           <BotIcon className="h-7 w-7 text-primary" />
-          AI Nanban
+          {t.AINanban}
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 overflow-hidden p-0">
@@ -133,7 +148,7 @@ export function AIChat() {
         <form onSubmit={handleSubmit} className="flex w-full items-center space-x-2">
           <Input
             id="message"
-            placeholder="Type your message..."
+            placeholder={t.typeYourMessage}
             className="flex-1"
             autoComplete="off"
             value={input}
@@ -142,7 +157,7 @@ export function AIChat() {
           />
           <Button type="submit" size="icon" disabled={isLoading || !input.trim()} className="bg-primary hover:bg-primary/90">
             <Send className="h-4 w-4" />
-            <span className="sr-only">Send</span>
+            <span className="sr-only">{t.Send}</span>
           </Button>
         </form>
       </CardFooter>

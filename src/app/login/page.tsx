@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { Wifi, Loader2 } from 'lucide-react';
+import { useLanguage } from '@/context/language-context';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -18,6 +19,7 @@ export default function LoginPage() {
   const { login } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,14 +28,14 @@ export default function LoginPage() {
       await login(email, password);
       router.push('/');
       toast({
-        title: 'Login Successful',
-        description: 'Welcome back!',
+        title: t.loginSuccessful,
+        description: t.welcomeBack,
       });
     } catch (error: any) {
       toast({
         variant: 'destructive',
-        title: 'Login Failed',
-        description: error.message || 'Please check your credentials and try again.',
+        title: t.loginFailed,
+        description: error.message || t.loginError,
       });
     } finally {
         setIsLoading(false);
@@ -45,18 +47,18 @@ export default function LoginPage() {
          <div className="flex items-center gap-3 mb-8">
             <Wifi className="h-12 w-12 text-primary" />
             <h1 className="text-5xl font-bold font-headline text-primary tracking-tight">
-              SignalSage
+              {t.SignalSage}
             </h1>
           </div>
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>Enter your email below to login to your account.</CardDescription>
+          <CardTitle className="text-2xl">{t.Login}</CardTitle>
+          <CardDescription>{t.loginDescription}</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t.Email}</Label>
               <Input
                 id="email"
                 type="email"
@@ -67,7 +69,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t.Password}</Label>
               <Input
                 id="password"
                 type="password"
@@ -80,12 +82,12 @@ export default function LoginPage() {
           <CardFooter className="flex flex-col">
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sign In
+              {t.SignIn}
             </Button>
             <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{' '}
+              {t.dontHaveAccount}{' '}
               <Link href="/signup" className="underline">
-                Sign up
+                {t.SignUp}
               </Link>
             </div>
           </CardFooter>

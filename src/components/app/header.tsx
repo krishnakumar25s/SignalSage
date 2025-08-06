@@ -1,6 +1,6 @@
 'use client';
 
-import { Wifi, LogOut, User, LogIn } from 'lucide-react';
+import { Wifi, LogOut, User, LogIn, Languages } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import { Button } from '../ui/button';
 import Link from 'next/link';
@@ -12,10 +12,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
 } from '@/components/ui/dropdown-menu';
+import { useLanguage } from '@/context/language-context';
+import { translations, Language } from '@/lib/translations';
 
 export function Header() {
   const { user, loading, logout } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
 
   const handleLogout = async () => {
     try {
@@ -32,10 +37,27 @@ export function Header() {
           <Link href="/" className="flex items-center gap-3">
             <Wifi className="h-8 w-8 text-primary" />
             <h1 className="text-3xl font-bold font-headline text-primary tracking-tight">
-              SignalSage
+              {t.SignalSage}
             </h1>
           </Link>
           <div className="flex items-center gap-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Languages className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>{t.SelectLanguage}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuRadioGroup value={language} onValueChange={(value) => setLanguage(value as Language)}>
+                  <DropdownMenuRadioItem value="en">English</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="ta">தமிழ்</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="te">తెలుగు</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="hi">हिन्दी</DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
             {loading ? null : user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -60,7 +82,7 @@ export function Header() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    <span>{t.Logout}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -68,7 +90,7 @@ export function Header() {
               <Button asChild>
                 <Link href="/login">
                   <LogIn className="mr-2 h-4 w-4" />
-                  Login
+                  {t.Login}
                 </Link>
               </Button>
             )}

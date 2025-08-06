@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import Link from 'next/link';
 import { JioIcon, AirtelIcon, ViIcon, BsnlIcon } from '@/components/app/icons';
+import { useLanguage } from '@/context/language-context';
 
 interface Prediction {
   operator: string;
@@ -33,6 +34,7 @@ export function SignalPredictor() {
   const [error, setError] = useState<string | null>(null);
   const [predictions, setPredictions] = useState<Prediction[] | null>(null);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
    useEffect(() => {
     // This empty useEffect ensures the component is treated as a client component,
@@ -45,11 +47,12 @@ export function SignalPredictor() {
     setPredictions(null);
 
     if (!navigator.geolocation) {
-      setError("Geolocation is not supported by your browser.");
+      const errorMsg = t.geolocationNotSupported;
+      setError(errorMsg);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Geolocation is not supported by your browser.",
+        title: t.Error,
+        description: errorMsg,
       });
       setIsLoading(false);
       return;
@@ -68,24 +71,24 @@ export function SignalPredictor() {
           setPredictions(mockPredictions);
           setIsLoading(false);
           toast({
-            title: "Success!",
-            description: "Signal strength predicted for your area.",
+            title: t.Success,
+            description: t.signalStrengthPredicted,
           });
         }, 1500);
       },
       (err) => {
-        let errorMessage = "An unknown error occurred.";
+        let errorMessage = t.geolocationUnknownError;
         if (err.code === err.PERMISSION_DENIED) {
-            errorMessage = "Location access denied. Please enable it in your browser settings to use this feature.";
+            errorMessage = t.geolocationPermissionDenied;
         } else if (err.code === err.POSITION_UNAVAILABLE) {
-            errorMessage = "Location information is unavailable.";
+            errorMessage = t.geolocationPositionUnavailable;
         } else if (err.code === err.TIMEOUT) {
-            errorMessage = "The request to get user location timed out.";
+            errorMessage = t.geolocationTimeout;
         }
         setError(errorMessage);
         toast({
             variant: "destructive",
-            title: "Geolocation Error",
+            title: t.GeolocationError,
             description: errorMessage,
         });
         setIsLoading(false);
@@ -98,10 +101,10 @@ export function SignalPredictor() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 font-headline text-2xl text-slate-800">
           <MapPin className="h-6 w-6 text-accent" />
-          Signal Strength Predictor
+          {t.SignalStrengthPredictor}
         </CardTitle>
         <CardDescription className="text-slate-600">
-          Find the best mobile network in your area. Click the button to get started.
+          {t.findBestNetwork}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -109,23 +112,23 @@ export function SignalPredictor() {
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Predicting...
+              {t.Predicting}...
             </>
           ) : (
-            'Predict Signal in My Area'
+            t.predictSignalInMyArea
           )}
         </Button>
 
         {error && (
             <Alert variant="destructive">
-                <AlertTitle>Error</AlertTitle>
+                <AlertTitle>{t.Error}</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
             </Alert>
         )}
 
         {predictions && (
           <div className="space-y-4 pt-4">
-             <h3 className="font-semibold text-lg text-center text-slate-700">Prediction Results</h3>
+             <h3 className="font-semibold text-lg text-center text-slate-700">{t.predictionResults}</h3>
             {predictions.map((pred) => (
               <Link href={`/operator/${pred.operator.toLowerCase()}`} key={pred.operator}>
                 <Card className="bg-white border-slate-200 hover:shadow-md transition-shadow">
@@ -142,15 +145,15 @@ export function SignalPredictor() {
                       <Table>
                           <TableBody>
                               <TableRow>
-                                  <TableCell className="font-medium flex items-center gap-2 text-slate-600"><Wifi size={16}/>Frequency</TableCell>
+                                  <TableCell className="font-medium flex items-center gap-2 text-slate-600"><Wifi size={16}/>{t.Frequency}</TableCell>
                                   <TableCell className="text-right text-slate-800">{pred.frequency}</TableCell>
                               </TableRow>
                               <TableRow>
-                                  <TableCell className="font-medium flex items-center gap-2 text-slate-600"><ArrowDown size={16}/>Download</TableCell>
+                                  <TableCell className="font-medium flex items-center gap-2 text-slate-600"><ArrowDown size={16}/>{t.Download}</TableCell>
                                   <TableCell className="text-right text-slate-800">{pred.downloadSpeed} Mbps</TableCell>
                               </TableRow>
                               <TableRow>
-                                  <TableCell className="font-medium flex items-center gap-2 text-slate-600"><ArrowUp size={16}/>Upload</TableCell>
+                                  <TableCell className="font-medium flex items-center gap-2 text-slate-600"><ArrowUp size={16}/>{t.Upload}</TableCell>
                                   <TableCell className="text-right text-slate-800">{pred.uploadSpeed} Mbps</TableCell>
                               </TableRow>
                           </TableBody>
