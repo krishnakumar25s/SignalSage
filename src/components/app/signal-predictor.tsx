@@ -1,10 +1,10 @@
 
 "use client";
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, MapPin, XCircle, ArrowRight, ArrowDown, ArrowUp, Star, Award } from 'lucide-react';
+import { Loader2, MapPin, ArrowRight, ArrowDown, ArrowUp, Award } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
@@ -35,24 +35,6 @@ export function SignalPredictor() {
   const [bestPrediction, setBestPrediction] = useState<Prediction | null>(null);
   const { toast } = useToast();
   const { t } = useLanguage();
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  const stopPrediction = () => {
-    setIsPredicting(false);
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-  };
-
-  // Clear interval on component unmount
-  useEffect(() => {
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, []);
 
   const generateRandomValues = (p: Omit<Prediction, 'rating' | 'downloadSpeed' | 'uploadSpeed'>): Prediction => ({
     ...p,
@@ -82,30 +64,22 @@ export function SignalPredictor() {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        // Initial prediction and sort to determine the best operator
-        const initialGeneratedPredictions = initialPredictions.map(generateRandomValues);
+        const generatedPredictions = initialPredictions.map(generateRandomValues);
         
-        const best = initialGeneratedPredictions.reduce((max, p) => p.rating > max.rating ? p : max, initialGeneratedPredictions[0]);
+        const best = generatedPredictions.reduce((max, p) => p.rating > max.rating ? p : max, generatedPredictions[0]);
         setBestPrediction(best);
 
-        const otherPredictions = initialGeneratedPredictions
+        const otherPredictions = generatedPredictions
             .filter(p => p.operator !== best.operator)
             .sort((a, b) => a.operator.localeCompare(b.operator));
         
         setPredictions(otherPredictions);
+        setIsPredicting(false);
 
         toast({
           title: t.Success,
           description: t.signalStrengthPredicted,
         });
-
-        // Start interval to update predictions values only
-        intervalRef.current = setInterval(() => {
-            setBestPrediction(prevBest => prevBest ? generateRandomValues(prevBest) : null);
-            setPredictions(prevOthers => 
-                prevOthers ? prevOthers.map(p => generateRandomValues(p)) : null
-            );
-        }, 2000);
       },
       (err) => {
         let errorMessage = t.geolocationUnknownError;
@@ -139,24 +113,12 @@ export function SignalPredictor() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {!isPredicting ? (
-            <Button onClick={handlePredict} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold">
-                {t.predictSignalInMyArea}
-            </Button>
-        ) : (
-            <div className="text-center">
-                <div className="flex items-center justify-center gap-2 text-accent font-semibold mb-2">
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t.Predicting}...
-                </div>
-                <Button onClick={stopPrediction} variant="outline" size="sm">
-                    <XCircle className="mr-2 h-4 w-4" />
-                    Stop Scanning
-                </Button>
-            </div>
-        )}
+        <Button onClick={handlePredict} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold" disabled={isPredicting}>
+            {isPredicting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isPredicting ? t.Predicting + '...' : t.predictSignalInMyArea}
+        </Button>
 
-        {error && !isPredicting && (
+        {error && (
             <Alert variant="destructive">
                 <AlertTitle>{t.Error}</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
