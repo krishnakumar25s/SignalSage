@@ -205,16 +205,11 @@ export function SignalPredictor() {
 
               <div className="flex flex-col gap-2">
                 {predictions.map(pred => (
-                    <div key={pred.operator} className="grid grid-cols-2 gap-2">
-                        <Button asChild variant="outline" className="w-full justify-start">
+                    <div key={pred.operator}>
+                        <Button asChild variant="outline" className="w-full justify-center">
                              <Link href={`/operator/${pred.operator.toLowerCase()}`}>
                                 <pred.logo className="mr-2" />
                                 {pred.operator}
-                            </Link>
-                        </Button>
-                        <Button asChild className="w-full font-bold">
-                             <Link href={pred.applyUrl} target="_blank">
-                                Apply Now <ArrowRight className="ml-2" />
                             </Link>
                         </Button>
                     </div>

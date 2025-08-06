@@ -141,12 +141,9 @@ export default function OperatorPage({ params }: { params: { operatorName: strin
                 ))}
               </TableBody>
             </Table>
-            <div className="mt-6 text-center flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild variant="outline">
+            <div className="mt-6 text-center">
+              <Button asChild>
                 <Link href="/">Back to Predictions</Link>
-              </Button>
-               <Button asChild>
-                <Link href={applyUrl} target="_blank">Apply for SIM <ArrowRight className="ml-2" /></Link>
               </Button>
             </div>
           </CardContent>
