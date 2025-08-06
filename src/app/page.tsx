@@ -41,7 +41,7 @@ function PlansSection() {
                 <CardTitle className="text-2xl font-headline">{plan.name}</CardTitle>
               </CardHeader>
               <CardContent className="text-center">
-                <p className="text-3xl font-bold text-primary">₹{plan.price}</p>
+                <p className="text-3xl font-bold text-primary">Rs.{plan.price}</p>
                 <div className="mt-4 space-y-1 text-muted-foreground">
                     <p>{plan.data}</p>
                     <p>{plan.validity} Validity</p>
