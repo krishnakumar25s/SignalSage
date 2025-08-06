@@ -25,10 +25,10 @@ interface Prediction {
 }
 
 const initialPredictions: Omit<Prediction, 'rating' | 'downloadSpeed' | 'uploadSpeed'>[] = [
-    { operator: 'Jio', logo: JioIcon, frequency: '700 MHz (5G)', applyUrl: 'https://www.jio.com' },
     { operator: 'Airtel', logo: AirtelIcon, frequency: '900 MHz (4G)', applyUrl: 'https://www.airtel.in' },
-    { operator: 'Vi', logo: ViIcon, frequency: '2100 MHz (4G)', applyUrl: 'https://www.myvi.in' },
     { operator: 'BSNL', logo: BsnlIcon, frequency: '1800 MHz (4G)', applyUrl: 'https://www.bsnl.co.in' },
+    { operator: 'Jio', logo: JioIcon, frequency: '700 MHz (5G)', applyUrl: 'https://www.jio.com' },
+    { operator: 'Vi', logo: ViIcon, frequency: '2100 MHz (4G)', applyUrl: 'https://www.myvi.in' },
 ];
 
 export function SignalPredictor() {
@@ -84,10 +84,9 @@ export function SignalPredictor() {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         // Initial prediction and sort
-        const initialSortedPredictions = initialPredictions
+        const initialAlphabeticalPredictions = initialPredictions
           .map(generateRandomValues)
-          .sort((a, b) => b.rating - a.rating || b.downloadSpeed - a.downloadSpeed);
-        setPredictions(initialSortedPredictions);
+        setPredictions(initialAlphabeticalPredictions);
 
         toast({
           title: t.Success,
@@ -172,7 +171,6 @@ export function SignalPredictor() {
                     <Link key={pred.operator} href={`/operator/${pred.operator.toLowerCase()}`} className="block">
                         <Card className="hover:shadow-md hover:border-accent transition-all">
                            <CardContent className="p-4 flex items-center gap-4">
-                                <div className="text-lg font-bold text-slate-500 w-4">{index + 1}.</div>
                                 <pred.logo className="h-10 w-10" />
                                 <div className="flex-1">
                                     <div className='flex justify-between items-center'>
