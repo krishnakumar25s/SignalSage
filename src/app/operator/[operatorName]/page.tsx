@@ -23,7 +23,7 @@ const MOCK_OPERATOR_DATA = {
     logo: JioIcon,
     rating: 5,
     description: 'Jio is known for its extensive 5G network and competitive data plans across India.',
-    applyUrl: 'https://www.jio.com/get-jio-sim',
+    applyUrl: 'https://www.jio.com',
     details: [
       { metric: 'Signal Strength', value: 'Excellent', icon: Wifi },
       { metric: '5G Availability', value: 'High', icon: BarChart },
@@ -38,7 +38,7 @@ const MOCK_OPERATOR_DATA = {
     logo: AirtelIcon,
     rating: 4,
     description: 'Airtel offers reliable 4G connectivity and is rapidly expanding its 5G services.',
-    applyUrl: 'https://www.airtel.in/prepaid/new-prepaid-sim-connection/',
+    applyUrl: 'https://www.airtel.in',
     details: [
         { metric: 'Signal Strength', value: 'Good', icon: Wifi },
         { metric: '5G Availability', value: 'Medium', icon: BarChart },
@@ -53,7 +53,7 @@ const MOCK_OPERATOR_DATA = {
     logo: ViIcon,
     rating: 3,
     description: 'Vi (Vodafone Idea) provides good coverage in urban areas with competitive pricing.',
-    applyUrl: 'https://www.myvi.in/new-connection/buy-prepaid-sim-card-online',
+    applyUrl: 'https://www.myvi.in',
     details: [
         { metric: 'Signal Strength', value: 'Average', icon: Wifi },
         { metric: '5G Availability', value: 'Low', icon: BarChart },
@@ -68,7 +68,7 @@ const MOCK_OPERATOR_DATA = {
     logo: BsnlIcon,
     rating: 2,
     description: 'BSNL has wide coverage in rural India, though data speeds can be slower.',
-    applyUrl: 'https://www.bsnl.co.in/opencms/bsnl/BSNL/services/mobile/new_mobile_connection.html',
+    applyUrl: 'https://www.bsnl.co.in',
     details: [
         { metric: 'Signal Strength', value: 'Average', icon: Wifi },
         { metric: '5G Availability', value: 'None', icon: BarChart },
@@ -146,7 +146,7 @@ export default function OperatorPage({ params }: { params: { operatorName: strin
                 <Link href="/">Back to Predictions</Link>
               </Button>
               <Button asChild>
-                <a href={applyUrl} target="_blank" rel="noopener noreferrer">Apply for SIM <ArrowRight className="ml-2" /></a>
+                <a href={applyUrl} target="_blank" rel="noopener noreferrer">Visit Website <ArrowRight className="ml-2" /></a>
               </Button>
             </div>
           </CardContent>
