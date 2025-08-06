@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, MapPin, ArrowRight, ArrowDown, ArrowUp, Award } from 'lucide-react';
@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { JioIcon, AirtelIcon, ViIcon, BsnlIcon } from '@/components/app/icons';
 import { useLanguage } from '@/context/language-context';
 import { StarRating } from './star-rating';
+import { getSignalPredictions } from '@/app/actions';
 
 
 interface Prediction {
@@ -21,12 +22,12 @@ interface Prediction {
   uploadSpeed: number; // in Mbps
 }
 
-const initialPredictions: Omit<Prediction, 'rating' | 'downloadSpeed' | 'uploadSpeed'>[] = [
-    { operator: 'Airtel', logo: AirtelIcon },
-    { operator: 'BSNL', logo: BsnlIcon },
-    { operator: 'Jio', logo: JioIcon },
-    { operator: 'Vi', logo: ViIcon },
-];
+const operatorLogoMap: Record<string, React.FC<React.SVGProps<SVGSVGElement>>> = {
+    'Airtel': AirtelIcon,
+    'BSNL': BsnlIcon,
+    'Jio': JioIcon,
+    'Vi': ViIcon,
+};
 
 export function SignalPredictor() {
   const [isPredicting, setIsPredicting] = useState(false);
@@ -35,14 +36,6 @@ export function SignalPredictor() {
   const [bestPrediction, setBestPrediction] = useState<Prediction | null>(null);
   const { toast } = useToast();
   const { t } = useLanguage();
-
-  const generateRandomValues = (p: Omit<Prediction, 'rating' | 'downloadSpeed' | 'uploadSpeed'>): Prediction => ({
-    ...p,
-    rating: Math.floor(Math.random() * 5) + 1,
-    downloadSpeed: Math.floor(Math.random() * (150 - 10 + 1)) + 10,
-    uploadSpeed: Math.floor(Math.random() * (50 - 5 + 1)) + 5,
-  });
-
 
   const handlePredict = () => {
     setIsPredicting(true);
@@ -63,23 +56,41 @@ export function SignalPredictor() {
     }
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const generatedPredictions = initialPredictions.map(generateRandomValues);
-        
-        const best = generatedPredictions.reduce((max, p) => p.rating > max.rating ? p : max, generatedPredictions[0]);
-        setBestPrediction(best);
+      async (position) => {
+        try {
+            const { latitude, longitude } = position.coords;
+            const result = await getSignalPredictions(latitude, longitude);
 
-        const otherPredictions = generatedPredictions
-            .filter(p => p.operator !== best.operator)
-            .sort((a, b) => a.operator.localeCompare(b.operator));
-        
-        setPredictions(otherPredictions);
-        setIsPredicting(false);
+            const receivedPredictions: Prediction[] = result.predictions.map(p => ({
+                ...p,
+                logo: operatorLogoMap[p.operator] || JioIcon,
+            }));
 
-        toast({
-          title: t.Success,
-          description: t.signalStrengthPredicted,
-        });
+            if(receivedPredictions && receivedPredictions.length > 0) {
+              const best = receivedPredictions.reduce((max, p) => p.rating > max.rating ? p : max, receivedPredictions[0]);
+              setBestPrediction(best);
+              
+              const otherPredictions = receivedPredictions
+                  .filter(p => p.operator !== best.operator)
+                  .sort((a, b) => a.operator.localeCompare(b.operator));
+              
+              setPredictions(otherPredictions);
+            }
+
+            toast({
+                title: t.Success,
+                description: t.signalStrengthPredicted,
+            });
+        } catch(e: any) {
+             setError(e.message || t.geolocationUnknownError);
+            toast({
+                variant: "destructive",
+                title: t.Error,
+                description: e.message || t.geolocationUnknownError,
+            });
+        } finally {
+            setIsPredicting(false);
+        }
       },
       (err) => {
         let errorMessage = t.geolocationUnknownError;
