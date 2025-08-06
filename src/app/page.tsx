@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useAuth } from '@/context/auth-context';
@@ -7,19 +8,78 @@ import { AIChat } from '@/components/app/ai-chat';
 import { Header } from '@/components/app/header';
 import { SignalPredictor } from '@/components/app/signal-predictor';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { ArrowRight, Bot, Wifi } from 'lucide-react';
+import { useLanguage } from '@/context/language-context';
 
+function IntroSection() {
+  const { t } = useLanguage();
+  return (
+    <>
+      <Header />
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section className="relative py-20 md:py-32 text-center bg-gradient-to-b from-background to-blue-50 dark:from-gray-900 dark:to-blue-950">
+           <div className="absolute inset-0 bg-grid-slate-900/[0.04] bg-[bottom_1px_center] dark:bg-grid-slate-400/[0.05] dark:bg-bottom dark:border-b dark:border-slate-100/5" style={{ maskImage: 'linear-gradient(to bottom, transparent, black)'}}></div>
+          <div className="container mx-auto px-4 relative">
+            <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tighter text-primary">
+              {t.SignalSage}
+            </h1>
+            <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground">
+              Never settle for a bad connection again. Find the strongest, fastest mobile network in your area with AI-powered predictions.
+            </p>
+            <div className="mt-8 flex justify-center gap-4">
+              <Button asChild size="lg" className="font-bold">
+                <Link href="/signup">
+                  Get Started <ArrowRight className="ml-2" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/login">Sign In</Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section className="py-16 md:py-24 bg-background">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8 lg:gap-12 text-center">
+              <div className="p-8 rounded-lg border bg-card text-card-foreground shadow-sm">
+                <div className="flex justify-center mb-4">
+                    <div className="p-3 rounded-full bg-primary/10 text-primary">
+                        <Wifi className="h-8 w-8" />
+                    </div>
+                </div>
+                <h3 className="text-2xl font-bold font-headline">Signal Prediction</h3>
+                <p className="mt-2 text-muted-foreground">
+                  Use your location to instantly see which network operator offers the best signal strength and data speeds.
+                </p>
+              </div>
+              <div className="p-8 rounded-lg border bg-card text-card-foreground shadow-sm">
+                <div className="flex justify-center mb-4">
+                    <div className="p-3 rounded-full bg-primary/10 text-primary">
+                        <Bot className="h-8 w-8" />
+                    </div>
+                </div>
+                <h3 className="text-2xl font-bold font-headline">AI Assistant</h3>
+                <p className="mt-2 text-muted-foreground">
+                  Have questions about plans, pricing, or telecom concepts? Our AI Nanban is here to help you in your language.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </>
+  );
+}
 
 export default function Home() {
   const { user, loading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
-    }
-  }, [user, loading, router]);
-
-  if (loading || !user) {
+  
+  if (loading) {
     return (
         <div className="flex flex-col min-h-screen">
         <Header />
@@ -35,6 +95,10 @@ export default function Home() {
         </main>
         </div>
     );
+  }
+
+  if (!user) {
+    return <IntroSection />;
   }
 
   return (
