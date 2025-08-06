@@ -4,14 +4,15 @@
 import { useEffect, useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowDown, ArrowUp, Loader2, MapPin, Wifi, XCircle } from 'lucide-react';
-import { StarRating } from '@/components/app/star-rating';
+import { Loader2, MapPin, XCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import Link from 'next/link';
 import { JioIcon, AirtelIcon, ViIcon, BsnlIcon } from '@/components/app/icons';
 import { useLanguage } from '@/context/language-context';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
+
 
 interface Prediction {
   operator: string;
@@ -125,6 +126,17 @@ export function SignalPredictor() {
       }
     );
   };
+  
+  const chartConfig = {
+    downloadSpeed: {
+      label: "Download (Mbps)",
+      color: "hsl(var(--chart-1))",
+    },
+    uploadSpeed: {
+      label: "Upload (Mbps)",
+      color: "hsl(var(--chart-2))",
+    },
+  };
 
   return (
     <Card className="shadow-lg bg-slate-50 border-slate-200">
@@ -165,39 +177,41 @@ export function SignalPredictor() {
         {predictions && (
           <div className="space-y-4 pt-4">
              <h3 className="font-semibold text-lg text-center text-slate-700">{t.predictionResults}</h3>
-            {predictions.map((pred) => (
-              <Link href={`/operator/${pred.operator.toLowerCase()}`} key={pred.operator}>
-                <Card className="bg-white border-slate-200 hover:shadow-md transition-shadow">
-                  <CardHeader className='p-4'>
-                      <div className="flex items-center justify-between">
-                          <div className='flex items-center gap-4'>
-                              <pred.logo className="rounded-full" />
-                              <span className="font-semibold text-md text-slate-800">{pred.operator}</span>
-                          </div>
-                          <StarRating rating={pred.rating} />
-                      </div>
-                  </CardHeader>
-                  <CardContent className='p-0'>
-                      <Table>
-                          <TableBody>
-                              <TableRow>
-                                  <TableCell className="font-medium flex items-center gap-2 text-slate-600"><Wifi size={16}/>{t.Frequency}</TableCell>
-                                  <TableCell className="text-right text-slate-800">{pred.frequency}</TableCell>
-                              </TableRow>
-                              <TableRow>
-                                  <TableCell className="font-medium flex items-center gap-2 text-slate-600"><ArrowDown size={16}/>{t.Download}</TableCell>
-                                  <TableCell className="text-right text-slate-800">{pred.downloadSpeed} Mbps</TableCell>
-                              </TableRow>
-                              <TableRow>
-                                  <TableCell className="font-medium flex items-center gap-2 text-slate-600"><ArrowUp size={16}/>{t.Upload}</TableCell>
-                                  <TableCell className="text-right text-slate-800">{pred.uploadSpeed} Mbps</TableCell>
-                              </TableRow>
-                          </TableBody>
-                      </Table>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
+              <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+                <BarChart accessibilityLayer data={predictions}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                        dataKey="operator"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                    />
+                    <YAxis
+                        width={30}
+                        tickLine={false}
+                        axisLine={false}
+                        tickFormatter={(value) => `${value}`}
+                    />
+                    <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent />}
+                    />
+                    <ChartLegend content={<ChartLegendContent />} />
+                    <Bar dataKey="downloadSpeed" fill="var(--color-downloadSpeed)" radius={4} name="Download" />
+                    <Bar dataKey="uploadSpeed" fill="var(--color-uploadSpeed)" radius={4} name="Upload" />
+                </BarChart>
+              </ChartContainer>
+
+              <div className="flex flex-col gap-2">
+                {predictions.map(pred => (
+                    <Link href={`/operator/${pred.operator.toLowerCase()}`} key={pred.operator}>
+                        <Button variant="outline" className="w-full justify-start">
+                            <pred.logo className="mr-2" />
+                            View Details for {pred.operator}
+                        </Button>
+                    </Link>
+                ))}
+              </div>
           </div>
         )}
       </CardContent>
