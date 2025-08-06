@@ -9,6 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
+import Link from 'next/link';
 
 interface Prediction {
   operator: string;
@@ -32,6 +33,11 @@ export function SignalPredictor() {
   const [error, setError] = useState<string | null>(null);
   const [predictions, setPredictions] = useState<Prediction[] | null>(null);
   const { toast } = useToast();
+
+   useEffect(() => {
+    // This empty useEffect ensures the component is treated as a client component,
+    // preventing hydration errors with the random data generation.
+  }, []);
 
   const handlePredict = () => {
     setIsLoading(true);
@@ -58,7 +64,7 @@ export function SignalPredictor() {
               rating: Math.floor(Math.random() * 5) + 1,
               downloadSpeed: Math.floor(Math.random() * (150 - 10 + 1)) + 10,
               uploadSpeed: Math.floor(Math.random() * (50 - 5 + 1)) + 5,
-            })).sort((a, b) => b.rating - a.rating);
+            })).sort((a, b) => b.rating - a.rating || b.downloadSpeed - a.downloadSpeed);
           setPredictions(mockPredictions);
           setIsLoading(false);
           toast({
@@ -88,13 +94,13 @@ export function SignalPredictor() {
   };
 
   return (
-    <Card className="shadow-lg">
+    <Card className="shadow-lg bg-slate-50 border-slate-200">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 font-headline text-2xl">
+        <CardTitle className="flex items-center gap-2 font-headline text-2xl text-slate-800">
           <MapPin className="h-6 w-6 text-accent" />
           Signal Strength Predictor
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-slate-600">
           Find the best mobile network in your area. Click the button to get started.
         </CardDescription>
       </CardHeader>
@@ -119,37 +125,39 @@ export function SignalPredictor() {
 
         {predictions && (
           <div className="space-y-4 pt-4">
-             <h3 className="font-semibold text-lg text-center">Prediction Results</h3>
+             <h3 className="font-semibold text-lg text-center text-slate-700">Prediction Results</h3>
             {predictions.map((pred) => (
-              <Card key={pred.operator} className="bg-background border">
-                <CardHeader className='p-4'>
-                    <div className="flex items-center justify-between">
-                        <div className='flex items-center gap-4'>
-                            <Image src={pred.logo} alt={`${pred.operator} logo`} width={40} height={40} className="rounded-full" data-ai-hint={pred.dataAiHint} />
-                            <span className="font-semibold text-md">{pred.operator}</span>
-                        </div>
-                        <StarRating rating={pred.rating} />
-                    </div>
-                </CardHeader>
-                <CardContent className='p-0'>
-                    <Table>
-                        <TableBody>
-                            <TableRow>
-                                <TableCell className="font-medium flex items-center gap-2"><Wifi size={16}/>Frequency</TableCell>
-                                <TableCell className="text-right">{pred.frequency}</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell className="font-medium flex items-center gap-2"><ArrowDown size={16}/>Download</TableCell>
-                                <TableCell className="text-right">{pred.downloadSpeed} Mbps</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell className="font-medium flex items-center gap-2"><ArrowUp size={16}/>Upload</TableCell>
-                                <TableCell className="text-right">{pred.uploadSpeed} Mbps</TableCell>
-                            </TableRow>
-                        </TableBody>
-                    </Table>
-                </CardContent>
-              </Card>
+              <Link href={`/operator/${pred.operator.toLowerCase()}`} key={pred.operator}>
+                <Card className="bg-white border-slate-200 hover:shadow-md transition-shadow">
+                  <CardHeader className='p-4'>
+                      <div className="flex items-center justify-between">
+                          <div className='flex items-center gap-4'>
+                              <Image src={pred.logo} alt={`${pred.operator} logo`} width={40} height={40} className="rounded-full" data-ai-hint={pred.dataAiHint} />
+                              <span className="font-semibold text-md text-slate-800">{pred.operator}</span>
+                          </div>
+                          <StarRating rating={pred.rating} />
+                      </div>
+                  </CardHeader>
+                  <CardContent className='p-0'>
+                      <Table>
+                          <TableBody>
+                              <TableRow>
+                                  <TableCell className="font-medium flex items-center gap-2 text-slate-600"><Wifi size={16}/>Frequency</TableCell>
+                                  <TableCell className="text-right text-slate-800">{pred.frequency}</TableCell>
+                              </TableRow>
+                              <TableRow>
+                                  <TableCell className="font-medium flex items-center gap-2 text-slate-600"><ArrowDown size={16}/>Download</TableCell>
+                                  <TableCell className="text-right text-slate-800">{pred.downloadSpeed} Mbps</TableCell>
+                              </TableRow>
+                              <TableRow>
+                                  <TableCell className="font-medium flex items-center gap-2 text-slate-600"><ArrowUp size={16}/>Upload</TableCell>
+                                  <TableCell className="text-right text-slate-800">{pred.uploadSpeed} Mbps</TableCell>
+                              </TableRow>
+                          </TableBody>
+                      </Table>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         )}
