@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowRight, Bot, Wifi } from 'lucide-react';
 import { useLanguage } from '@/context/language-context';
-import Image from 'next/image';
 
 function IntroSection() {
   const { t } = useLanguage();
@@ -21,20 +20,12 @@ function IntroSection() {
       <Header />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative py-20 md:py-32 text-center overflow-hidden">
-          <Image
-            src="https://placehold.co/1920x1080.png"
-            alt="Telecom tower background"
-            data-ai-hint="telecom tower"
-            fill
-            className="object-cover -z-10"
-          />
-          <div className="absolute inset-0 bg-black/50 dark:bg-black/70 -z-10" />
-          <div className="container mx-auto px-4 relative">
-            <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tighter text-white">
+        <section className="py-20 md:py-32 text-center bg-slate-50 dark:bg-slate-900">
+          <div className="container mx-auto px-4">
+            <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tighter text-primary">
               {t.SignalSage}
             </h1>
-            <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-slate-300">
+            <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-slate-600 dark:text-slate-300">
               Never settle for a bad connection again. Find the strongest, fastest mobile network in your area with AI-powered predictions.
             </p>
             <div className="mt-8 flex justify-center gap-4">
@@ -43,7 +34,7 @@ function IntroSection() {
                   Get Started <ArrowRight className="ml-2" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="bg-transparent text-white hover:bg-white hover:text-primary">
+              <Button asChild size="lg" variant="outline">
                 <Link href="/login">Sign In</Link>
               </Button>
             </div>
