@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from '@/context/auth-context';
 import { LanguageProvider } from '@/context/language-context';
+import { ThemeProvider } from '@/components/app/theme-provider';
 
 export const metadata: Metadata = {
   title: 'SignalSage',
@@ -22,12 +23,19 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        <AuthProvider>
-          <LanguageProvider>
-            {children}
-          </LanguageProvider>
-        </AuthProvider>
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            <LanguageProvider>
+              {children}
+            </LanguageProvider>
+          </AuthProvider>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
