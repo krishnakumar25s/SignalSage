@@ -54,15 +54,13 @@ export function SignalPredictor() {
     };
   }, []);
 
-  const generatePredictions = () => {
-    const mockPredictions = initialPredictions.map(p => ({
-        ...p, 
-        rating: Math.floor(Math.random() * 5) + 1,
-        downloadSpeed: Math.floor(Math.random() * (150 - 10 + 1)) + 10,
-        uploadSpeed: Math.floor(Math.random() * (50 - 5 + 1)) + 5,
-      })).sort((a, b) => b.rating - a.rating || b.downloadSpeed - a.downloadSpeed);
-    setPredictions(mockPredictions);
-  };
+  const generateRandomValues = (p: Omit<Prediction, 'rating' | 'downloadSpeed' | 'uploadSpeed'>): Prediction => ({
+    ...p,
+    rating: Math.floor(Math.random() * 5) + 1,
+    downloadSpeed: Math.floor(Math.random() * (150 - 10 + 1)) + 10,
+    uploadSpeed: Math.floor(Math.random() * (50 - 5 + 1)) + 5,
+  });
+
 
   const handlePredict = () => {
     setIsPredicting(true);
@@ -83,15 +81,29 @@ export function SignalPredictor() {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        generatePredictions(); // Generate initial predictions immediately
+        // Initial prediction and sort
+        const initialSortedPredictions = initialPredictions
+          .map(generateRandomValues)
+          .sort((a, b) => b.rating - a.rating || b.downloadSpeed - a.downloadSpeed);
+        setPredictions(initialSortedPredictions);
+
         toast({
           title: t.Success,
           description: t.signalStrengthPredicted,
         });
 
-        // Start interval to update predictions every 2 seconds
+        // Start interval to update predictions without re-sorting
         intervalRef.current = setInterval(() => {
-          generatePredictions();
+          setPredictions(prevPredictions => {
+            if (!prevPredictions) return null;
+            // Update values but keep the same order
+            return prevPredictions.map(p => ({
+              ...p,
+              rating: Math.floor(Math.random() * 5) + 1,
+              downloadSpeed: Math.floor(Math.random() * (150 - 10 + 1)) + 10,
+              uploadSpeed: Math.floor(Math.random() * (50 - 5 + 1)) + 5,
+            }));
+          });
         }, 2000);
       },
       (err) => {
