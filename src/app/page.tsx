@@ -25,7 +25,7 @@ function PlansSection() {
   ];
 
   return (
-    <section className="py-16 md:py-24 bg-slate-100 dark:bg-slate-800/50">
+    <section className="py-16 md:py-24 bg-slate-100 dark:bg-slate-800/50 rounded-lg mt-8">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold font-headline">Popular Subscription Plans</h2>
@@ -35,7 +35,7 @@ function PlansSection() {
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {plans.map((plan) => (
-            <Card key={plan.name} className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <Card key={plan.name} className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card">
               <CardHeader className="items-center text-center">
                 <plan.logo className="h-16 w-16 mb-4" />
                 <CardTitle className="text-2xl font-headline">{plan.name}</CardTitle>
@@ -115,7 +115,6 @@ function IntroSection() {
             </div>
           </div>
         </section>
-        <PlansSection />
       </main>
     </>
   );
@@ -158,6 +157,7 @@ export default function Home() {
             <AIChat />
           </div>
         </div>
+        <PlansSection />
       </main>
     </div>
   );
