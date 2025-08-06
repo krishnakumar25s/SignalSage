@@ -4,14 +4,14 @@
 import { useEffect, useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, MapPin, XCircle, ArrowRight } from 'lucide-react';
+import { Loader2, MapPin, XCircle, ArrowRight, ArrowDown, ArrowUp } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { JioIcon, AirtelIcon, ViIcon, BsnlIcon } from '@/components/app/icons';
 import { useLanguage } from '@/context/language-context';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
+import { cn } from '@/lib/utils';
+import { StarRating } from './star-rating';
 
 
 interface Prediction {
@@ -25,10 +25,10 @@ interface Prediction {
 }
 
 const initialPredictions: Omit<Prediction, 'rating' | 'downloadSpeed' | 'uploadSpeed'>[] = [
-    { operator: 'Jio', logo: JioIcon, frequency: '700 MHz (5G)', applyUrl: 'https://www.jio.com/get-jio-sim' },
-    { operator: 'Airtel', logo: AirtelIcon, frequency: '900 MHz (4G)', applyUrl: 'https://www.airtel.in/prepaid/new-prepaid-sim-connection/' },
-    { operator: 'Vi', logo: ViIcon, frequency: '2100 MHz (4G)', applyUrl: 'https://www.myvi.in/new-connection/buy-prepaid-sim-card-online' },
-    { operator: 'BSNL', logo: BsnlIcon, frequency: '1800 MHz (4G)', applyUrl: 'https://www.bsnl.co.in/opencms/bsnl/BSNL/services/mobile/new_mobile_connection.html' },
+    { operator: 'Jio', logo: JioIcon, frequency: '700 MHz (5G)', applyUrl: 'https://www.jio.com' },
+    { operator: 'Airtel', logo: AirtelIcon, frequency: '900 MHz (4G)', applyUrl: 'https://www.airtel.in' },
+    { operator: 'Vi', logo: ViIcon, frequency: '2100 MHz (4G)', applyUrl: 'https://www.myvi.in' },
+    { operator: 'BSNL', logo: BsnlIcon, frequency: '1800 MHz (4G)', applyUrl: 'https://www.bsnl.co.in' },
 ];
 
 export function SignalPredictor() {
@@ -128,17 +128,6 @@ export function SignalPredictor() {
     );
   };
   
-  const chartConfig = {
-    downloadSpeed: {
-      label: "Download (Mbps)",
-      color: "hsl(var(--chart-1))",
-    },
-    uploadSpeed: {
-      label: "Upload (Mbps)",
-      color: "hsl(var(--chart-2))",
-    },
-  };
-
   return (
     <Card className="shadow-lg bg-slate-50 border-slate-200">
       <CardHeader>
@@ -177,42 +166,34 @@ export function SignalPredictor() {
 
         {predictions && (
           <div className="space-y-4 pt-4">
-             <h3 className="font-semibold text-lg text-center text-slate-700">{t.predictionResults}</h3>
-              <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-                <BarChart accessibilityLayer data={predictions}>
-                    <CartesianGrid vertical={false} />
-                    <XAxis
-                        dataKey="operator"
-                        tickLine={false}
-                        tickMargin={10}
-                        axisLine={false}
-                    />
-                    <YAxis
-                        width={30}
-                        tickLine={false}
-                        axisLine={false}
-                        tickFormatter={(value) => `${value}`}
-                    />
-                    <ChartTooltip
-                        cursor={false}
-                        content={<ChartTooltipContent />}
-                    />
-                    <ChartLegend content={<ChartLegendContent />} />
-                    <Bar dataKey="downloadSpeed" fill="var(--color-downloadSpeed)" radius={4} name="Download" />
-                    <Bar dataKey="uploadSpeed" fill="var(--color-uploadSpeed)" radius={4} name="Upload" />
-                </BarChart>
-              </ChartContainer>
-
-              <div className="flex flex-col gap-2">
-                {predictions.map(pred => (
-                    <div key={pred.operator}>
-                        <Button asChild variant="outline" className="w-full justify-center">
-                             <Link href={`/operator/${pred.operator.toLowerCase()}`}>
-                                <pred.logo className="mr-2" />
-                                {pred.operator}
-                            </Link>
-                        </Button>
-                    </div>
+             <h3 className="font-semibold text-lg text-center text-slate-700 mb-4">{t.predictionResults}</h3>
+              <div className="flex flex-col gap-3">
+                {predictions.map((pred, index) => (
+                    <Link key={pred.operator} href={`/operator/${pred.operator.toLowerCase()}`} className="block">
+                        <Card className="hover:shadow-md hover:border-accent transition-all">
+                           <CardContent className="p-4 flex items-center gap-4">
+                                <div className="text-lg font-bold text-slate-500 w-4">{index + 1}.</div>
+                                <pred.logo className="h-10 w-10" />
+                                <div className="flex-1">
+                                    <div className='flex justify-between items-center'>
+                                        <p className="font-bold text-slate-800">{pred.operator}</p>
+                                        <StarRating rating={pred.rating} />
+                                    </div>
+                                    <div className="flex items-center gap-4 text-sm text-slate-600 mt-1">
+                                        <div className="flex items-center gap-1">
+                                            <ArrowDown className="h-4 w-4 text-green-500" />
+                                            <span>{pred.downloadSpeed} Mbps</span>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            <ArrowUp className="h-4 w-4 text-orange-500" />
+                                            <span>{pred.uploadSpeed} Mbps</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <ArrowRight className="text-slate-400" />
+                           </CardContent>
+                        </Card>
+                    </Link>
                 ))}
               </div>
           </div>
