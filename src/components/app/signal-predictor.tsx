@@ -4,7 +4,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, MapPin, XCircle } from 'lucide-react';
+import { Loader2, MapPin, XCircle, ArrowRight } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
@@ -21,13 +21,14 @@ interface Prediction {
   frequency: string;
   downloadSpeed: number; // in Mbps
   uploadSpeed: number; // in Mbps
+  applyUrl: string;
 }
 
 const initialPredictions: Omit<Prediction, 'rating' | 'downloadSpeed' | 'uploadSpeed'>[] = [
-    { operator: 'Jio', logo: JioIcon, frequency: '700 MHz (5G)' },
-    { operator: 'Airtel', logo: AirtelIcon, frequency: '900 MHz (4G)' },
-    { operator: 'Vi', logo: ViIcon, frequency: '2100 MHz (4G)' },
-    { operator: 'BSNL', logo: BsnlIcon, frequency: '1800 MHz (4G)' },
+    { operator: 'Jio', logo: JioIcon, frequency: '700 MHz (5G)', applyUrl: 'https://www.jio.com/get-jio-sim' },
+    { operator: 'Airtel', logo: AirtelIcon, frequency: '900 MHz (4G)', applyUrl: 'https://www.airtel.in/prepaid/new-prepaid-sim-connection/' },
+    { operator: 'Vi', logo: ViIcon, frequency: '2100 MHz (4G)', applyUrl: 'https://www.myvi.in/new-connection/buy-prepaid-sim-card-online' },
+    { operator: 'BSNL', logo: BsnlIcon, frequency: '1800 MHz (4G)', applyUrl: 'https://www.bsnl.co.in/opencms/bsnl/BSNL/services/mobile/new_mobile_connection.html' },
 ];
 
 export function SignalPredictor() {
@@ -204,12 +205,19 @@ export function SignalPredictor() {
 
               <div className="flex flex-col gap-2">
                 {predictions.map(pred => (
-                    <Link href={`/operator/${pred.operator.toLowerCase()}`} key={pred.operator}>
-                        <Button variant="outline" className="w-full justify-start">
-                            <pred.logo className="mr-2" />
-                            View Details for {pred.operator}
+                    <div key={pred.operator} className="grid grid-cols-2 gap-2">
+                        <Button asChild variant="outline" className="w-full justify-start">
+                             <Link href={`/operator/${pred.operator.toLowerCase()}`}>
+                                <pred.logo className="mr-2" />
+                                View Details
+                            </Link>
                         </Button>
-                    </Link>
+                        <Button asChild className="w-full font-bold">
+                             <Link href={pred.applyUrl} target="_blank">
+                                Apply Now <ArrowRight className="ml-2" />
+                            </Link>
+                        </Button>
+                    </div>
                 ))}
               </div>
           </div>

@@ -2,7 +2,7 @@ import { Header } from '@/components/app/header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { StarRating } from '@/components/app/star-rating';
-import { Wifi, ArrowDown, ArrowUp, BarChart, TrendingUp, HelpCircle } from 'lucide-react';
+import { Wifi, ArrowDown, ArrowUp, BarChart, TrendingUp, HelpCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { JioIcon, AirtelIcon, ViIcon, BsnlIcon } from '@/components/app/icons';
@@ -23,6 +23,7 @@ const MOCK_OPERATOR_DATA = {
     logo: JioIcon,
     rating: 5,
     description: 'Jio is known for its extensive 5G network and competitive data plans across India.',
+    applyUrl: 'https://www.jio.com/get-jio-sim',
     details: [
       { metric: 'Signal Strength', value: 'Excellent', icon: Wifi },
       { metric: '5G Availability', value: 'High', icon: BarChart },
@@ -37,6 +38,7 @@ const MOCK_OPERATOR_DATA = {
     logo: AirtelIcon,
     rating: 4,
     description: 'Airtel offers reliable 4G connectivity and is rapidly expanding its 5G services.',
+    applyUrl: 'https://www.airtel.in/prepaid/new-prepaid-sim-connection/',
     details: [
         { metric: 'Signal Strength', value: 'Good', icon: Wifi },
         { metric: '5G Availability', value: 'Medium', icon: BarChart },
@@ -51,6 +53,7 @@ const MOCK_OPERATOR_DATA = {
     logo: ViIcon,
     rating: 3,
     description: 'Vi (Vodafone Idea) provides good coverage in urban areas with competitive pricing.',
+    applyUrl: 'https://www.myvi.in/new-connection/buy-prepaid-sim-card-online',
     details: [
         { metric: 'Signal Strength', value: 'Average', icon: Wifi },
         { metric: '5G Availability', value: 'Low', icon: BarChart },
@@ -65,6 +68,7 @@ const MOCK_OPERATOR_DATA = {
     logo: BsnlIcon,
     rating: 2,
     description: 'BSNL has wide coverage in rural India, though data speeds can be slower.',
+    applyUrl: 'https://www.bsnl.co.in/opencms/bsnl/BSNL/services/mobile/new_mobile_connection.html',
     details: [
         { metric: 'Signal Strength', value: 'Average', icon: Wifi },
         { metric: '5G Availability', value: 'None', icon: BarChart },
@@ -103,7 +107,7 @@ export default function OperatorPage({ params }: { params: { operatorName: strin
     );
   }
   
-  const { name, logo: Logo, rating, description, details } = operatorData;
+  const { name, logo: Logo, rating, description, details, applyUrl } = operatorData;
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
@@ -137,9 +141,12 @@ export default function OperatorPage({ params }: { params: { operatorName: strin
                 ))}
               </TableBody>
             </Table>
-            <div className="mt-6 text-center">
+            <div className="mt-6 text-center flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild variant="outline">
                 <Link href="/">Back to Predictions</Link>
+              </Button>
+               <Button asChild>
+                <Link href={applyUrl} target="_blank">Apply for SIM <ArrowRight className="ml-2" /></Link>
               </Button>
             </div>
           </CardContent>
