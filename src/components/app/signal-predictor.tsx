@@ -1,10 +1,10 @@
 
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowDown, ArrowUp, Loader2, MapPin, Wifi } from 'lucide-react';
+import { ArrowDown, ArrowUp, Loader2, MapPin, Wifi, XCircle } from 'lucide-react';
 import { StarRating } from '@/components/app/star-rating';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { useToast } from '@/hooks/use-toast';
@@ -30,19 +30,42 @@ const initialPredictions: Omit<Prediction, 'rating' | 'downloadSpeed' | 'uploadS
 ];
 
 export function SignalPredictor() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isPredicting, setIsPredicting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [predictions, setPredictions] = useState<Prediction[] | null>(null);
   const { toast } = useToast();
   const { t } = useLanguage();
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-   useEffect(() => {
-    // This empty useEffect ensures the component is treated as a client component,
-    // preventing hydration errors with the random data generation.
+  const stopPrediction = () => {
+    setIsPredicting(false);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
+
+  // Clear interval on component unmount
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
   }, []);
 
+  const generatePredictions = () => {
+    const mockPredictions = initialPredictions.map(p => ({
+        ...p, 
+        rating: Math.floor(Math.random() * 5) + 1,
+        downloadSpeed: Math.floor(Math.random() * (150 - 10 + 1)) + 10,
+        uploadSpeed: Math.floor(Math.random() * (50 - 5 + 1)) + 5,
+      })).sort((a, b) => b.rating - a.rating || b.downloadSpeed - a.downloadSpeed);
+    setPredictions(mockPredictions);
+  };
+
   const handlePredict = () => {
-    setIsLoading(true);
+    setIsPredicting(true);
     setError(null);
     setPredictions(null);
 
@@ -54,27 +77,22 @@ export function SignalPredictor() {
         title: t.Error,
         description: errorMsg,
       });
-      setIsLoading(false);
+      setIsPredicting(false);
       return;
     }
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        // Simulate API call
-        setTimeout(() => {
-          const mockPredictions = initialPredictions.map(p => ({
-              ...p, 
-              rating: Math.floor(Math.random() * 5) + 1,
-              downloadSpeed: Math.floor(Math.random() * (150 - 10 + 1)) + 10,
-              uploadSpeed: Math.floor(Math.random() * (50 - 5 + 1)) + 5,
-            })).sort((a, b) => b.rating - a.rating || b.downloadSpeed - a.downloadSpeed);
-          setPredictions(mockPredictions);
-          setIsLoading(false);
-          toast({
-            title: t.Success,
-            description: t.signalStrengthPredicted,
-          });
-        }, 1500);
+        generatePredictions(); // Generate initial predictions immediately
+        toast({
+          title: t.Success,
+          description: t.signalStrengthPredicted,
+        });
+
+        // Start interval to update predictions every 2 seconds
+        intervalRef.current = setInterval(() => {
+          generatePredictions();
+        }, 2000);
       },
       (err) => {
         let errorMessage = t.geolocationUnknownError;
@@ -91,7 +109,7 @@ export function SignalPredictor() {
             title: t.GeolocationError,
             description: errorMessage,
         });
-        setIsLoading(false);
+        setIsPredicting(false);
       }
     );
   };
@@ -108,18 +126,24 @@ export function SignalPredictor() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <Button onClick={handlePredict} disabled={isLoading} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold">
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {t.Predicting}...
-            </>
-          ) : (
-            t.predictSignalInMyArea
-          )}
-        </Button>
+        {!isPredicting ? (
+            <Button onClick={handlePredict} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold">
+                {t.predictSignalInMyArea}
+            </Button>
+        ) : (
+            <div className="text-center">
+                <div className="flex items-center justify-center gap-2 text-accent font-semibold mb-2">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {t.Predicting}...
+                </div>
+                <Button onClick={stopPrediction} variant="outline" size="sm">
+                    <XCircle className="mr-2 h-4 w-4" />
+                    Stop Scanning
+                </Button>
+            </div>
+        )}
 
-        {error && (
+        {error && !isPredicting && (
             <Alert variant="destructive">
                 <AlertTitle>{t.Error}</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
