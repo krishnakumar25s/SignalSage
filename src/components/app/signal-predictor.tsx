@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -7,25 +8,24 @@ import { ArrowDown, ArrowUp, Loader2, MapPin, Wifi } from 'lucide-react';
 import { StarRating } from '@/components/app/star-rating';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import Image from 'next/image';
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import Link from 'next/link';
+import { JioIcon, AirtelIcon, ViIcon, BsnlIcon } from '@/components/app/icons';
 
 interface Prediction {
   operator: string;
-  logo: string;
-  dataAiHint: string;
+  logo: React.FC<React.SVGProps<SVGSVGElement>>;
   rating: number;
   frequency: string;
   downloadSpeed: number; // in Mbps
   uploadSpeed: number; // in Mbps
 }
 
-const initialPredictions: Prediction[] = [
-    { operator: 'Jio', logo: 'https://placehold.co/40x40.png', dataAiHint: 'telecom logo', rating: 0, frequency: '700 MHz (5G)', downloadSpeed: 0, uploadSpeed: 0 },
-    { operator: 'Airtel', logo: 'https://placehold.co/40x40.png', dataAiHint: 'telecom logo', rating: 0, frequency: '900 MHz (4G)', downloadSpeed: 0, uploadSpeed: 0 },
-    { operator: 'Vi', logo: 'https://placehold.co/40x40.png', dataAiHint: 'telecom logo', rating: 0, frequency: '2100 MHz (4G)', downloadSpeed: 0, uploadSpeed: 0 },
-    { operator: 'BSNL', logo: 'https://placehold.co/40x40.png', dataAiHint: 'telecom logo', rating: 0, frequency: '1800 MHz (4G)', downloadSpeed: 0, uploadSpeed: 0 },
+const initialPredictions: Omit<Prediction, 'rating' | 'downloadSpeed' | 'uploadSpeed'>[] = [
+    { operator: 'Jio', logo: JioIcon, frequency: '700 MHz (5G)' },
+    { operator: 'Airtel', logo: AirtelIcon, frequency: '900 MHz (4G)' },
+    { operator: 'Vi', logo: ViIcon, frequency: '2100 MHz (4G)' },
+    { operator: 'BSNL', logo: BsnlIcon, frequency: '1800 MHz (4G)' },
 ];
 
 export function SignalPredictor() {
@@ -132,7 +132,7 @@ export function SignalPredictor() {
                   <CardHeader className='p-4'>
                       <div className="flex items-center justify-between">
                           <div className='flex items-center gap-4'>
-                              <Image src={pred.logo} alt={`${pred.operator} logo`} width={40} height={40} className="rounded-full" data-ai-hint={pred.dataAiHint} />
+                              <pred.logo className="rounded-full" />
                               <span className="font-semibold text-md text-slate-800">{pred.operator}</span>
                           </div>
                           <StarRating rating={pred.rating} />

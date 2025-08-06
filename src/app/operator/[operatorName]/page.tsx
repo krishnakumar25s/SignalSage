@@ -3,16 +3,24 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { StarRating } from '@/components/app/star-rating';
 import { Wifi, ArrowDown, ArrowUp, BarChart, TrendingUp, HelpCircle } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { JioIcon, AirtelIcon, ViIcon, BsnlIcon } from '@/components/app/icons';
+
+const OPERATOR_LOGOS = {
+  jio: JioIcon,
+  airtel: AirtelIcon,
+  vi: ViIcon,
+  bsnl: BsnlIcon,
+};
+
 
 // This is mock data. In a real application, you would fetch this data
 // based on the operatorName from a database or an API.
 const MOCK_OPERATOR_DATA = {
   jio: {
     name: 'Jio',
-    logo: 'https://placehold.co/80x80.png',
+    logo: JioIcon,
     rating: 5,
     description: 'Jio is known for its extensive 5G network and competitive data plans across India.',
     details: [
@@ -26,7 +34,7 @@ const MOCK_OPERATOR_DATA = {
   },
   airtel: {
     name: 'Airtel',
-    logo: 'https://placehold.co/80x80.png',
+    logo: AirtelIcon,
     rating: 4,
     description: 'Airtel offers reliable 4G connectivity and is rapidly expanding its 5G services.',
     details: [
@@ -40,7 +48,7 @@ const MOCK_OPERATOR_DATA = {
   },
   vi: {
     name: 'Vi',
-    logo: 'https://placehold.co/80x80.png',
+    logo: ViIcon,
     rating: 3,
     description: 'Vi (Vodafone Idea) provides good coverage in urban areas with competitive pricing.',
     details: [
@@ -54,7 +62,7 @@ const MOCK_OPERATOR_DATA = {
   },
   bsnl: {
     name: 'BSNL',
-    logo: 'https://placehold.co/80x80.png',
+    logo: BsnlIcon,
     rating: 2,
     description: 'BSNL has wide coverage in rural India, though data speeds can be slower.',
     details: [
@@ -95,7 +103,7 @@ export default function OperatorPage({ params }: { params: { operatorName: strin
     );
   }
   
-  const { name, logo, rating, description, details } = operatorData;
+  const { name, logo: Logo, rating, description, details } = operatorData;
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
@@ -103,7 +111,7 @@ export default function OperatorPage({ params }: { params: { operatorName: strin
       <main className="flex-1 w-full container mx-auto p-4 sm:p-6 lg:p-8">
         <Card className="w-full max-w-2xl mx-auto shadow-xl bg-white border-slate-200">
           <CardHeader className="text-center items-center">
-            <Image src={logo} alt={`${name} logo`} width={80} height={80} className="rounded-full mb-4" data-ai-hint="telecom logo" />
+            <Logo className="rounded-full mb-4 h-20 w-20" />
             <CardTitle className="text-3xl font-headline text-slate-800">{name}</CardTitle>
             <div className="pt-2">
                 <StarRating rating={rating} />
