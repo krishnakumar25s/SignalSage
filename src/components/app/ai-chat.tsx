@@ -26,6 +26,11 @@ export function AIChat() {
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const scrollToBottom = () => {
         if (scrollAreaRef.current) {
@@ -42,7 +47,7 @@ export function AIChat() {
 
     useEffect(() => {
         // When the component mounts, add a welcome message if the chat is empty.
-        if (messages.length === 0) {
+        if (isMounted && messages.length === 0) {
             setMessages([
                 {
                     id: 'welcome',
@@ -52,7 +57,7 @@ export function AIChat() {
             ]);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [isMounted]);
 
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -75,6 +80,10 @@ export function AIChat() {
       setIsLoading(false);
     }
   };
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <Card className="shadow-lg h-full flex flex-col max-h-[75vh]">
