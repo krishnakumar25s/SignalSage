@@ -41,7 +41,7 @@ export function AIChat() {
     }, [messages]);
 
     useEffect(() => {
-        // When language changes, add a welcome message if the chat is empty.
+        // When the component mounts, add a welcome message if the chat is empty.
         if (messages.length === 0) {
             setMessages([
                 {
@@ -52,7 +52,7 @@ export function AIChat() {
             ]);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [t.welcomeMessage, setMessages]);
+    }, []);
 
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
