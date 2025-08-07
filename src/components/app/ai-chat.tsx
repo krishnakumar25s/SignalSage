@@ -21,12 +21,8 @@ export interface Message {
 
 export function AIChat() {
     const { t } = useLanguage();
-    const welcomeMessage: Message = {
-        id: 'welcome',
-        role: 'assistant',
-        content: t.welcomeMessage,
-    };
-    const [messages, setMessages] = useLocalStorage<Message[]>('chatHistory', [welcomeMessage]);
+    
+    const [messages, setMessages] = useLocalStorage<Message[]>('chatHistory', []);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -45,8 +41,8 @@ export function AIChat() {
     }, [messages]);
 
     useEffect(() => {
-        // When language changes, update welcome message if it's the only message
-        if (messages.length <= 1) {
+        // When language changes, add a welcome message if the chat is empty.
+        if (messages.length === 0) {
             setMessages([
                 {
                     id: 'welcome',
@@ -56,7 +52,7 @@ export function AIChat() {
             ]);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [t.welcomeMessage]);
+    }, [t.welcomeMessage, setMessages]);
 
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
